@@ -1,13 +1,13 @@
 # Python dynamic matrix from classifiers
 
-A composite GitHub Action that extracts version-specific Python classifiers from
-`pyproject.toml` and returns them as a JSON array for a dynamic GitHub Actions
-matrix.
+- Extracts classifiers `Programming Language :: Python :: 3.yy` from
+`pyproject.toml`.
+- Returns them as a JSON array.
+- Then `matrix` for Python versions may be dynamically generated.
 
 ## Usage
 
-Generate the matrix in a separate job, then use its output in a dependent job.
-A matrix cannot be created by a step in the job that consumes it.
+Matrix must be generated in a separate job.
 
 ```yaml
 jobs:
@@ -19,7 +19,8 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: '>=3.11'
+          check-latest: true 
       - id: versions
         uses: 34j/python-dynamic-matrix-from-classifiers@v1.0.0
 
@@ -66,5 +67,3 @@ The action requires Python 3.11 or later because it uses the standard-library
 ## Releases
 
 Releases are created from Conventional Commit messages with semantic-release.
-The first Marketplace publication must be completed through the GitHub
-Marketplace publishing flow for a GitHub Release.
