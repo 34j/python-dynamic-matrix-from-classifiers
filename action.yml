@@ -18,7 +18,7 @@ runs:
   steps:
     - id: extract
       shell: bash
-      run: python "$GITHUB_ACTION_PATH/extract.py" "$INPUT_PYPROJECT_PATH" >> "$GITHUB_OUTPUT"
+      run: python "$GITHUB_ACTION_PATH/extract.py" "${{ inputs['pyproject-path'] }}" >> "$GITHUB_OUTPUT"
 
 branding:
   icon: grid
