@@ -1,0 +1,25 @@
+name: Python dynamic matrix from classifiers
+description: Extract supported Python versions from pyproject.toml classifiers for a GitHub Actions matrix.
+author: 34j
+
+inputs:
+  pyproject-path:
+    description: Path to the pyproject.toml file to inspect.
+    required: false
+    default: pyproject.toml
+
+outputs:
+  versions:
+    description: JSON array of Python versions extracted from classifiers.
+    value: ${{ steps.extract.outputs.versions }}
+
+runs:
+  using: composite
+  steps:
+    - id: extract
+      shell: bash
+      run: python "$GITHUB_ACTION_PATH/extract.py" "$INPUT_PYPROJECT_PATH" >> "$GITHUB_OUTPUT"
+
+branding:
+  icon: grid
+  color: blue
