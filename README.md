@@ -53,7 +53,9 @@ jobs:
 | `versions` | A JSON array of Python versions. |
 | `oses` | A JSON array of GitHub Actions runner labels. |
 
-Only classifiers in this exact form are included:
+Explicit operating system classifiers are mapped to GitHub Actions runner labels. If no supported operating system classifier is present, all supported runners are returned and a warning is emitted.
+
+Only Python classifiers in this exact form are included:
 
 ```toml
 "Programming Language :: Python :: 3.12"

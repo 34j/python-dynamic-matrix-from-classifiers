@@ -4,6 +4,7 @@ import json
 import re
 import sys
 import tomllib
+import warnings
 from pathlib import Path
 
 CLASSIFIER_PATTERN = re.compile(r"Programming Language :: Python :: (\d+\.\d+)")
@@ -52,10 +53,12 @@ def extract_oses(pyproject_path: Path) -> list[str]:
 
     if oses:
         return list(dict.fromkeys(oses))
-    if "Operating System :: OS Independent" in classifiers:
-        return ALL_OSES.copy()
-
-    raise ValueError("No supported operating system classifiers were found")
+    if "Operating System :: OS Independent" not in classifiers:
+        warnings.warn(
+            "No supported operating system classifiers were found; assuming OS Independent",
+            stacklevel=2,
+        )
+    return ALL_OSES.copy()
 
 
 def main() -> int:

@@ -49,7 +49,7 @@ classifiers = ["Operating System :: OS Independent"]
             extract_oses(pyproject), ["windows-latest", "macos-latest", "ubuntu-latest"]
         )
 
-    def test_rejects_missing_operating_system_classifiers(self) -> None:
+    def test_assumes_os_independent_when_operating_system_classifiers_are_missing(self) -> None:
         pyproject = self.write_pyproject(
             '''
 [project]
@@ -57,8 +57,10 @@ classifiers = ["Programming Language :: Python :: 3.12"]
 '''
         )
 
-        with self.assertRaisesRegex(ValueError, "operating system classifiers"):
-            extract_oses(pyproject)
+        with self.assertWarnsRegex(UserWarning, "assuming OS Independent"):
+            oses = extract_oses(pyproject)
+
+        self.assertEqual(oses, ["windows-latest", "macos-latest", "ubuntu-latest"])
 
     def test_rejects_missing_versioned_python_classifiers(self) -> None:
         pyproject = self.write_pyproject(
