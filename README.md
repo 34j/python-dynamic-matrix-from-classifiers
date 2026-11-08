@@ -1,9 +1,9 @@
 # Python dynamic matrix from classifiers
 
-- Extracts classifiers `Programming Language :: Python :: 3.yy` from
-`pyproject.toml`.
-- Returns them as a JSON array.
-- Then `matrix` for Python versions may be dynamically generated.
+- Extracts classifiers `Programming Language :: Python :: 3.yy` and supported
+operating system classifiers from `pyproject.toml`.
+- Returns them as JSON arrays.
+- Then `matrix` for Python versions and operating systems may be dynamically generated.
 
 ## Usage
 
@@ -26,11 +26,12 @@ jobs:
 
   test:
     needs: python-matrix
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ${{ fromJSON(needs.python-matrix.outputs.versions) }}
+        os: ${{ fromJSON(needs.python-matrix.outputs.oses) }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -50,6 +51,7 @@ jobs:
 | Name | Description |
 | --- | --- |
 | `versions` | A JSON array of Python versions. |
+| `oses` | A JSON array of GitHub Actions runner labels. |
 
 Only classifiers in this exact form are included:
 

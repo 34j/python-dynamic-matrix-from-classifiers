@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from extract import extract_versions
+from extract import extract_oses, extract_versions
 
 
 class ExtractVersionsTests(unittest.TestCase):
@@ -21,6 +21,44 @@ classifiers = [
         )
 
         self.assertEqual(extract_versions(pyproject), ["3.10", "3.12"])
+
+    def test_extracts_explicit_operating_system_classifiers_in_order(self) -> None:
+        pyproject = self.write_pyproject(
+            '''
+[project]
+classifiers = [
+  "Operating System :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+]
+'''
+        )
+
+        self.assertEqual(extract_oses(pyproject), ["ubuntu-latest", "windows-latest"])
+
+    def test_os_independent_supports_all_operating_systems(self) -> None:
+        pyproject = self.write_pyproject(
+            '''
+[project]
+classifiers = ["Operating System :: OS Independent"]
+'''
+        )
+
+        self.assertEqual(
+            extract_oses(pyproject), ["windows-latest", "macos-latest", "ubuntu-latest"]
+        )
+
+    def test_rejects_missing_operating_system_classifiers(self) -> None:
+        pyproject = self.write_pyproject(
+            '''
+[project]
+classifiers = ["Programming Language :: Python :: 3.12"]
+'''
+        )
+
+        with self.assertRaisesRegex(ValueError, "operating system classifiers"):
+            extract_oses(pyproject)
 
     def test_rejects_missing_versioned_python_classifiers(self) -> None:
         pyproject = self.write_pyproject(

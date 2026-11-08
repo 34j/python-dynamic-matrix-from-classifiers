@@ -1,5 +1,5 @@
 name: Python dynamic matrix from classifiers
-description: Extract supported Python versions from pyproject.toml classifiers for a GitHub Actions matrix.
+description: Extract supported Python versions and operating systems from pyproject.toml classifiers for a GitHub Actions matrix.
 author: 34j
 
 inputs:
@@ -12,6 +12,9 @@ outputs:
   versions:
     description: JSON array of Python versions extracted from classifiers.
     value: ${{ steps.extract.outputs.versions }}
+  oses:
+    description: JSON array of GitHub Actions runners extracted from operating system classifiers.
+    value: ${{ steps.extract.outputs.oses }}
 
 runs:
   using: composite

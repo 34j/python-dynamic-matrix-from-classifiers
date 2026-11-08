@@ -7,9 +7,15 @@ import tomllib
 from pathlib import Path
 
 CLASSIFIER_PATTERN = re.compile(r"Programming Language :: Python :: (\d+\.\d+)")
+OS_CLASSIFIERS = {
+    "Operating System :: Microsoft :: Windows": "windows-latest",
+    "Operating System :: MacOS": "macos-latest",
+    "Operating System :: POSIX :: Linux": "ubuntu-latest",
+}
+ALL_OSES = list(OS_CLASSIFIERS.values())
 
 
-def extract_versions(pyproject_path: Path) -> list[str]:
+def load_classifiers(pyproject_path: Path) -> list[str]:
     with pyproject_path.open("rb") as file:
         pyproject = tomllib.load(file)
 
@@ -23,9 +29,13 @@ def extract_versions(pyproject_path: Path) -> list[str]:
     ):
         raise ValueError("project.classifiers must be an array of strings")
 
+    return classifiers
+
+
+def extract_versions(pyproject_path: Path) -> list[str]:
     versions = [
         match.group(1)
-        for classifier in classifiers
+        for classifier in load_classifiers(pyproject_path)
         if (match := CLASSIFIER_PATTERN.fullmatch(classifier))
     ]
     versions = list(dict.fromkeys(versions))
@@ -34,6 +44,18 @@ def extract_versions(pyproject_path: Path) -> list[str]:
         raise ValueError("No versioned Python classifiers were found")
 
     return versions
+
+
+def extract_oses(pyproject_path: Path) -> list[str]:
+    classifiers = load_classifiers(pyproject_path)
+    oses = [OS_CLASSIFIERS[classifier] for classifier in classifiers if classifier in OS_CLASSIFIERS]
+
+    if oses:
+        return list(dict.fromkeys(oses))
+    if "Operating System :: OS Independent" in classifiers:
+        return ALL_OSES.copy()
+
+    raise ValueError("No supported operating system classifiers were found")
 
 
 def main() -> int:
@@ -46,12 +68,15 @@ def main() -> int:
         return 1
 
     try:
-        versions = extract_versions(Path(sys.argv[1]))
+        path = Path(sys.argv[1])
+        versions = extract_versions(path)
+        oses = extract_oses(path)
     except (OSError, tomllib.TOMLDecodeError, ValueError) as error:
         print(f"Unable to extract Python versions: {error}", file=sys.stderr)
         return 1
 
     print(f"versions={json.dumps(versions, separators=(',', ':'))}")
+    print(f"oses={json.dumps(oses, separators=(',', ':'))}")
     return 0
 
 
